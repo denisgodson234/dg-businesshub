@@ -6,7 +6,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     /* =========================
-       BASIC ELEMENTS
+       AI CHAT ELEMENTS
     ========================= */
 
     const chatMessages = document.getElementById("chatMessages");
@@ -17,8 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const aiModal = document.getElementById("aiModal");
     const closeAi = document.getElementById("closeAi");
 
+
     /* =========================
-       AI CHAT
+       CHAT FUNCTIONS
     ========================= */
 
     function scrollChatToBottom() {
@@ -27,56 +28,84 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+
     function escapeHTML(text) {
         const div = document.createElement("div");
         div.textContent = text;
         return div.innerHTML;
     }
 
+
     function formatAIResponse(text) {
+
         let safeText = escapeHTML(text);
 
-        safeText = safeText.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        safeText = safeText.replace(/\n/g, "<br>");
+        safeText = safeText.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+        safeText = safeText.replace(
+            /\n/g,
+            "<br>"
+        );
 
         return safeText;
     }
 
+
     function addUserMessage(message) {
+
         if (!chatMessages) return;
 
-        const messageContainer = document.createElement("div");
-        messageContainer.className = "chat-message user";
+        const messageContainer =
+            document.createElement("div");
+
+        messageContainer.className =
+            "chat-message user";
 
         messageContainer.innerHTML = `
             <div class="message-bubble">
                 <span class="message-role">YOU</span>
-                <div>${escapeHTML(message).replace(/\n/g, "<br>")}</div>
+                <div>
+                    ${escapeHTML(message).replace(/\n/g, "<br>")}
+                </div>
             </div>
         `;
 
         chatMessages.appendChild(messageContainer);
+
         scrollChatToBottom();
     }
 
+
     function addAIMessage(message) {
+
         if (!chatMessages) return;
 
-        const messageContainer = document.createElement("div");
-        messageContainer.className = "chat-message ai";
+        const messageContainer =
+            document.createElement("div");
+
+        messageContainer.className =
+            "chat-message ai";
 
         messageContainer.innerHTML = `
             <div class="message-bubble">
                 <span class="message-role">DG AI</span>
-                <div>${formatAIResponse(message)}</div>
+                <div>
+                    ${formatAIResponse(message)}
+                </div>
             </div>
         `;
 
         chatMessages.appendChild(messageContainer);
+
         scrollChatToBottom();
     }
 
+
     function showTyping() {
+
         if (typingIndicator) {
             typingIndicator.classList.add("active");
         }
@@ -84,15 +113,24 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollChatToBottom();
     }
 
+
     function hideTyping() {
+
         if (typingIndicator) {
             typingIndicator.classList.remove("active");
         }
     }
 
+
+    /* =========================
+       ASK AI
+    ========================= */
+
     async function askAI(question) {
 
-        if (!question || !question.trim()) return;
+        if (!question || !question.trim()) {
+            return;
+        }
 
         const cleanQuestion = question.trim();
 
@@ -111,33 +149,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
 
-            const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: cleanQuestion
-                })
-            });
+            const response = await fetch(
+                "/api/chat",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: cleanQuestion
+                    })
+                }
+            );
+
 
             let data;
 
             try {
+
                 data = await response.json();
-            } catch (jsonError) {
-                throw new Error("The server returned an invalid response.");
+
+            } catch (error) {
+
+                throw new Error(
+                    "Invalid server response."
+                );
+
             }
 
+
             if (!response.ok) {
+
                 throw new Error(
                     data.error ||
                     data.message ||
-                    "The AI server returned an error."
+                    "AI server error."
                 );
+
             }
 
+
             hideTyping();
+
 
             const aiReply =
                 data.reply ||
@@ -145,22 +200,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 data.message ||
                 data.content;
 
+
             if (aiReply) {
+
                 addAIMessage(aiReply);
+
             } else {
+
                 addAIMessage(
                     "Sorry, I received an empty response. Please try again."
                 );
+
             }
+
 
         } catch (error) {
 
-            console.error("AI Error:", error);
+            console.error(
+                "AI Error:",
+                error
+            );
 
             hideTyping();
 
             addAIMessage(
-                "Sorry, I couldn't connect to the AI right now. Please check that your server is running and try again."
+                "Sorry, I couldn't connect to the AI right now. Please try again."
             );
 
         } finally {
@@ -172,8 +236,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (chatInput) {
                 chatInput.focus();
             }
+
         }
     }
+
 
     /* =========================
        SEND BUTTON
@@ -181,18 +247,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (sendButton) {
 
-        sendButton.addEventListener("click", () => {
+        sendButton.addEventListener(
+            "click",
+            () => {
 
-            if (!chatInput) return;
+                if (!chatInput) return;
 
-            const question = chatInput.value.trim();
+                const question =
+                    chatInput.value.trim();
 
-            if (question) {
-                askAI(question);
+                if (question) {
+                    askAI(question);
+                }
+
             }
+        );
 
-        });
     }
+
 
     /* =========================
        ENTER TO SEND
@@ -200,66 +272,102 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (chatInput) {
 
-        chatInput.addEventListener("keydown", (event) => {
+        chatInput.addEventListener(
+            "keydown",
+            (event) => {
 
-            if (event.key === "Enter" && !event.shiftKey) {
+                if (
+                    event.key === "Enter" &&
+                    !event.shiftKey
+                ) {
 
-                event.preventDefault();
+                    event.preventDefault();
 
-                const question = chatInput.value.trim();
+                    const question =
+                        chatInput.value.trim();
 
-                if (question && sendButton && !sendButton.disabled) {
-                    askAI(question);
+                    if (
+                        question &&
+                        sendButton &&
+                        !sendButton.disabled
+                    ) {
+
+                        askAI(question);
+
+                    }
+
                 }
+
             }
+        );
 
-        });
 
-        /* Auto resize textarea */
+        chatInput.addEventListener(
+            "input",
+            () => {
 
-        chatInput.addEventListener("input", () => {
+                chatInput.style.height =
+                    "auto";
 
-            chatInput.style.height = "auto";
+                const height =
+                    Math.min(
+                        chatInput.scrollHeight,
+                        130
+                    );
 
-            const newHeight = Math.min(
-                chatInput.scrollHeight,
-                130
-            );
+                chatInput.style.height =
+                    height + "px";
 
-            chatInput.style.height = newHeight + "px";
-        });
+            }
+        );
+
     }
 
+
     /* =========================
-       AI SUGGESTIONS
+       SUGGESTION BUTTONS
     ========================= */
 
-    const suggestionButtons =
-        document.querySelectorAll(".suggestion-list button");
+    const suggestions =
+        document.querySelectorAll(
+            ".suggestion-list button"
+        );
 
-    suggestionButtons.forEach(button => {
 
-        button.addEventListener("click", () => {
+    suggestions.forEach(button => {
 
-            const question =
-                button.getAttribute("data-question") ||
-                button.textContent.trim();
+        button.addEventListener(
+            "click",
+            () => {
 
-            if (!question) return;
+                const question =
+                    button.getAttribute(
+                        "data-question"
+                    ) ||
+                    button.textContent.trim();
 
-            if (chatInput) {
-                chatInput.value = question;
-                chatInput.focus();
+                if (!question) return;
 
-                chatInput.dispatchEvent(
-                    new Event("input")
-                );
+                if (chatInput) {
+
+                    chatInput.value =
+                        question;
+
+                    chatInput.dispatchEvent(
+                        new Event("input")
+                    );
+
+                    chatInput.focus();
+
+                }
+
+                askAI(question);
+
             }
-
-            askAI(question);
-        });
+        );
 
     });
+
 
     /* =========================
        AI MODAL
@@ -267,231 +375,314 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openAIModal() {
 
-        if (aiModal) {
-            aiModal.classList.add("active");
-            document.body.style.overflow = "hidden";
-        }
+        if (!aiModal) return;
+
+        aiModal.classList.add("active");
+
+        document.body.style.overflow =
+            "hidden";
 
     }
+
 
     function closeAIModal() {
 
-        if (aiModal) {
-            aiModal.classList.remove("active");
-            document.body.style.overflow = "";
-        }
+        if (!aiModal) return;
+
+        aiModal.classList.remove("active");
+
+        document.body.style.overflow =
+            "";
 
     }
+
 
     if (closeAi) {
-        closeAi.addEventListener("click", closeAIModal);
+
+        closeAi.addEventListener(
+            "click",
+            closeAIModal
+        );
+
     }
+
 
     if (aiModal) {
 
-        aiModal.addEventListener("click", (event) => {
+        aiModal.addEventListener(
+            "click",
+            (event) => {
 
-            if (event.target === aiModal) {
+                if (
+                    event.target === aiModal
+                ) {
+
+                    closeAIModal();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (event.key === "Escape") {
                 closeAIModal();
             }
 
-        });
-    }
-
-    document.addEventListener("keydown", (event) => {
-
-        if (event.key === "Escape") {
-            closeAIModal();
         }
-
-    });
-
-    /* =========================
-       BUTTONS THAT OPEN AI
-    ========================= */
-
-    const aiOpenButtons = document.querySelectorAll(
-        '[data-open-ai], .open-ai, .ai-button'
     );
 
-    aiOpenButtons.forEach(button => {
 
-        button.addEventListener("click", event => {
+    /* =========================
+       OPEN AI BUTTONS
+    ========================= */
 
-            const target =
-                button.getAttribute("href");
+    const aiButtons =
+        document.querySelectorAll(
+            '[data-open-ai], .open-ai, .ai-button'
+        );
 
-            if (!target || target === "#ai") {
-                event.preventDefault();
-                openAIModal();
 
-                setTimeout(() => {
-                    if (chatInput) {
-                        chatInput.focus();
-                    }
-                }, 200);
+    aiButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            (event) => {
+
+                const href =
+                    button.getAttribute(
+                        "href"
+                    );
+
+                if (
+                    !href ||
+                    href === "#ai"
+                ) {
+
+                    event.preventDefault();
+
+                    openAIModal();
+
+                    setTimeout(
+                        () => {
+
+                            if (chatInput) {
+                                chatInput.focus();
+                            }
+
+                        },
+                        200
+                    );
+
+                }
+
             }
-
-        });
+        );
 
     });
 
+
     /* =========================
-       SMOOTH NAVIGATION
+       SMOOTH SCROLL
     ========================= */
 
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
+    document.querySelectorAll(
+        'a[href^="#"]'
+    ).forEach(link => {
 
-        link.addEventListener("click", event => {
+        link.addEventListener(
+            "click",
+            event => {
 
-            const targetId =
-                link.getAttribute("href");
+                const id =
+                    link.getAttribute(
+                        "href"
+                    );
 
-            if (!targetId || targetId === "#") {
-                return;
+                if (
+                    !id ||
+                    id === "#"
+                ) {
+                    return;
+                }
+
+                const target =
+                    document.querySelector(id);
+
+                if (target) {
+
+                    event.preventDefault();
+
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
             }
-
-            const target =
-                document.querySelector(targetId);
-
-            if (target) {
-
-                event.preventDefault();
-
-                target.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-            }
-
-        });
+        );
 
     });
 
-    /* =========================
-       PROFIT CALCULATOR
-    ========================= */
 
-    const costInput =
-        document.getElementById("costPrice");
+    /* =====================================================
+       🔴 BUSINESS PROFIT CALCULATOR
+       REVENUE - EXPENSES
+    ===================================================== */
 
-    const sellingInput =
-        document.getElementById("sellingPrice");
+    const revenueInput =
+        document.getElementById(
+            "revenue"
+        );
 
-    const quantityInput =
-        document.getElementById("quantity");
+
+    const expensesInput =
+        document.getElementById(
+            "expenses"
+        );
+
 
     const calculateButton =
-        document.getElementById("calculateProfit");
+        document.getElementById(
+            "calculateProfit"
+        );
+
 
     const profitResult =
-        document.getElementById("profitResult");
+        document.getElementById(
+            "profitResult"
+        );
 
-    function calculateProfit() {
 
-        if (
-            !costInput ||
-            !sellingInput ||
-            !quantityInput ||
-            !profitResult
-        ) {
-            return;
-        }
-
-        const cost =
-            parseFloat(costInput.value);
-
-        const selling =
-            parseFloat(sellingInput.value);
-
-        const quantity =
-            parseInt(quantityInput.value);
-
-        if (
-            Number.isNaN(cost) ||
-            Number.isNaN(selling) ||
-            Number.isNaN(quantity) ||
-            quantity <= 0
-        ) {
-
-            profitResult.classList.remove("success");
-
-            profitResult.textContent =
-                "Enter valid numbers to calculate your profit.";
-
-            return;
-        }
-
-        const profitPerItem =
-            selling - cost;
-
-        const totalProfit =
-            profitPerItem * quantity;
-
-        const totalCost =
-            cost * quantity;
-
-        const totalRevenue =
-            selling * quantity;
-
-        profitResult.classList.add("success");
-
-        if (totalProfit > 0) {
-
-            profitResult.innerHTML = `
-                <strong>Estimated Profit:</strong>
-                ${formatMoney(totalProfit)}
-                <br><br>
-                Total Cost:
-                ${formatMoney(totalCost)}
-                <br>
-                Total Revenue:
-                ${formatMoney(totalRevenue)}
-                <br>
-                Profit Per Item:
-                ${formatMoney(profitPerItem)}
-            `;
-
-        } else if (totalProfit === 0) {
-
-            profitResult.classList.remove("success");
-
-            profitResult.innerHTML = `
-                <strong>Break-even:</strong>
-                Your total revenue equals your total cost.
-            `;
-
-        } else {
-
-            profitResult.classList.remove("success");
-
-            profitResult.innerHTML = `
-                <strong>Estimated Loss:</strong>
-                ${formatMoney(Math.abs(totalProfit))}
-                <br><br>
-                Total Cost:
-                ${formatMoney(totalCost)}
-                <br>
-                Total Revenue:
-                ${formatMoney(totalRevenue)}
-            `;
-
-        }
-    }
-
-    function formatMoney(number) {
+    function formatNaira(number) {
 
         return new Intl.NumberFormat(
             "en-NG",
             {
                 style: "currency",
                 currency: "NGN",
-                maximumFractionDigits: 2
+                minimumFractionDigits: 2
             }
         ).format(number);
 
     }
+
+
+    function calculateProfit() {
+
+        if (
+            !revenueInput ||
+            !expensesInput ||
+            !profitResult
+        ) {
+
+            console.error(
+                "Calculator elements not found."
+            );
+
+            return;
+        }
+
+
+        const revenue =
+            parseFloat(
+                revenueInput.value
+            );
+
+
+        const expenses =
+            parseFloat(
+                expensesInput.value
+            );
+
+
+        if (
+            Number.isNaN(revenue) ||
+            Number.isNaN(expenses)
+        ) {
+
+            profitResult.classList.remove(
+                "success"
+            );
+
+            profitResult.textContent =
+                "Please enter valid revenue and expenses.";
+
+            return;
+        }
+
+
+        const profit =
+            revenue - expenses;
+
+
+        if (profit > 0) {
+
+            profitResult.classList.add(
+                "success"
+            );
+
+            profitResult.innerHTML = `
+                <strong>Estimated Profit:</strong>
+                ${formatNaira(profit)}
+                <br><br>
+                Revenue:
+                ${formatNaira(revenue)}
+                <br>
+                Expenses:
+                ${formatNaira(expenses)}
+            `;
+
+        }
+
+        else if (profit === 0) {
+
+            profitResult.classList.remove(
+                "success"
+            );
+
+            profitResult.innerHTML = `
+                <strong>Break-even:</strong>
+                Your revenue and expenses are equal.
+                <br><br>
+                Total:
+                ${formatNaira(revenue)}
+            `;
+
+        }
+
+        else {
+
+            profitResult.classList.remove(
+                "success"
+            );
+
+            profitResult.innerHTML = `
+                <strong>Estimated Loss:</strong>
+                ${formatNaira(Math.abs(profit))}
+                <br><br>
+                Revenue:
+                ${formatNaira(revenue)}
+                <br>
+                Expenses:
+                ${formatNaira(expenses)}
+            `;
+
+        }
+
+    }
+
+
+    /* =========================
+       CALCULATE BUTTON
+    ========================= */
 
     if (calculateButton) {
 
@@ -502,182 +693,200 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    [costInput, sellingInput, quantityInput]
+
+    /* =========================
+       CALCULATE WITH ENTER
+    ========================= */
+
+    [revenueInput, expensesInput]
         .filter(Boolean)
         .forEach(input => {
 
             input.addEventListener(
-                "input",
-                calculateProfit
+                "keydown",
+                event => {
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+
+                        event.preventDefault();
+
+                        calculateProfit();
+
+                    }
+
+                }
             );
 
         });
 
+
     /* =========================
-       FEATURE TOOL BUTTONS
+       FEATURE BUTTONS
     ========================= */
 
     const toolButtons =
-        document.querySelectorAll(".tool-button");
+        document.querySelectorAll(
+            ".tool-button"
+        );
+
 
     toolButtons.forEach(button => {
 
-        button.addEventListener("click", () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-            const tool =
-                button.getAttribute("data-tool");
+                const tool =
+                    button.getAttribute(
+                        "data-tool"
+                    );
 
-            if (tool === "ai") {
 
-                const aiSection =
-                    document.getElementById("ai");
+                if (tool === "ai") {
 
-                if (aiSection) {
-                    aiSection.scrollIntoView({
-                        behavior: "smooth"
-                    });
-                }
+                    const aiSection =
+                        document.getElementById(
+                            "ai"
+                        );
 
-                setTimeout(() => {
+                    if (aiSection) {
 
-                    if (chatInput) {
-                        chatInput.focus();
+                        aiSection.scrollIntoView({
+                            behavior: "smooth"
+                        });
+
                     }
 
-                }, 600);
+                    setTimeout(
+                        () => {
 
-            }
+                            if (chatInput) {
+                                chatInput.focus();
+                            }
 
-            if (tool === "calculator") {
+                        },
+                        600
+                    );
 
-                const calculator =
-                    document.getElementById("calculator");
+                }
 
-                if (calculator) {
-                    calculator.scrollIntoView({
-                        behavior: "smooth"
-                    });
+
+                if (
+                    tool === "calculator"
+                ) {
+
+                    const calculator =
+                        document.getElementById(
+                            "calculator"
+                        );
+
+                    if (calculator) {
+
+                        calculator.scrollIntoView({
+                            behavior: "smooth"
+                        });
+
+                    }
+
                 }
 
             }
-
-        });
+        );
 
     });
+
 
     /* =========================
        ACTIVE NAVIGATION
     ========================= */
 
     const sections =
-        document.querySelectorAll("section[id]");
+        document.querySelectorAll(
+            "section[id]"
+        );
+
 
     const navLinks =
-        document.querySelectorAll(".nav-links a");
+        document.querySelectorAll(
+            ".nav-links a"
+        );
+
 
     function updateActiveNav() {
 
         let currentSection = "";
 
+
         sections.forEach(section => {
 
-            const sectionTop =
+            const top =
                 section.offsetTop - 160;
 
+
             if (
-                window.scrollY >= sectionTop
+                window.scrollY >= top
             ) {
+
                 currentSection =
-                    section.getAttribute("id");
+                    section.getAttribute(
+                        "id"
+                    );
+
             }
 
         });
 
+
         navLinks.forEach(link => {
 
-            link.classList.remove("active");
+            link.classList.remove(
+                "active"
+            );
+
 
             const href =
-                link.getAttribute("href");
+                link.getAttribute(
+                    "href"
+                );
+
 
             if (
-                href === "#" + currentSection
+                href ===
+                "#" + currentSection
             ) {
-                link.classList.add("active");
+
+                link.classList.add(
+                    "active"
+                );
+
             }
 
         });
 
     }
 
+
     window.addEventListener(
         "scroll",
         updateActiveNav
     );
 
+
     updateActiveNav();
 
-    /* =========================
-       BUTTON RIPPLE EFFECT
-    ========================= */
-
-    document.querySelectorAll(
-        ".primary-button, .send-button, .nav-button"
-    ).forEach(button => {
-
-        button.addEventListener("click", function(event) {
-
-            const ripple =
-                document.createElement("span");
-
-            ripple.style.position = "absolute";
-            ripple.style.width = "10px";
-            ripple.style.height = "10px";
-            ripple.style.borderRadius = "50%";
-            ripple.style.background = "rgba(255,255,255,.35)";
-            ripple.style.transform = "translate(-50%,-50%)";
-            ripple.style.pointerEvents = "none";
-            ripple.style.left =
-                event.offsetX + "px";
-            ripple.style.top =
-                event.offsetY + "px";
-
-            this.style.position = "relative";
-            this.appendChild(ripple);
-
-            ripple.animate(
-                [
-                    {
-                        width: "10px",
-                        height: "10px",
-                        opacity: 1
-                    },
-                    {
-                        width: "300px",
-                        height: "300px",
-                        opacity: 0
-                    }
-                ],
-                {
-                    duration: 550,
-                    easing: "ease-out"
-                }
-            );
-
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-
-        });
-
-    });
 
     /* =========================
-       PAGE READY
+       STARTUP MESSAGE
     ========================= */
 
     console.log(
         "DENIS GODSON BUSINESS HUB V5 loaded successfully."
+    );
+
+    console.log(
+        "Profit calculator initialized."
     );
 
 });
