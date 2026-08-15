@@ -1,0 +1,24 @@
+{
+  "name": "denis-godson-business-hub",
+  "version": "5.0.0",
+  "description": "DENIS GODSON BUSINESS HUB - AI-powered business and learning platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "business",
+    "entrepreneurship",
+    "ai",
+    "education",
+    "technology"
+  ],
+  "author": "Denis Godson",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "groq-sdk": "^0.30.0"
+  }
+}
