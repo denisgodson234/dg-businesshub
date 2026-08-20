@@ -1,892 +1,961 @@
 /* =========================================================
    DENIS GODSON BUSINESS HUB
-   VERSION 5 — SCRIPT.JS
+   VERSION 5
+   MAIN JAVASCRIPT
+   AI + PROFIT CALCULATOR + UI
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    /* =========================
-       AI CHAT ELEMENTS
-    ========================= */
+/* =========================================================
+   GLOBAL ELEMENTS
+========================================================= */
 
-    const chatMessages = document.getElementById("chatMessages");
-    const chatInput = document.getElementById("chatInput");
-    const sendButton = document.getElementById("sendButton");
-    const typingIndicator = document.getElementById("typingIndicator");
+const chatMessages =
+    document.getElementById("chatMessages");
 
-    const aiModal = document.getElementById("aiModal");
-    const closeAi = document.getElementById("closeAi");
+const chatInput =
+    document.getElementById("chatInput");
+
+const sendButton =
+    document.getElementById("sendButton");
+
+const typingIndicator =
+    document.getElementById("typingIndicator");
+
+const aiModal =
+    document.getElementById("aiModal");
+
+const revenueInput =
+    document.getElementById("revenueInput");
+
+const expenseInput =
+    document.getElementById("expenseInput");
+
+const profitResult =
+    document.getElementById("profitResult");
 
 
-    /* =========================
-       CHAT FUNCTIONS
-    ========================= */
+/* =========================================================
+   AI MODAL
+========================================================= */
 
-    function scrollChatToBottom() {
-        if (chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+function openAI() {
+
+    if (!aiModal) {
+        return;
     }
 
+    aiModal.classList.add("active");
 
-    function escapeHTML(text) {
-        const div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    setTimeout(() => {
 
-
-    function formatAIResponse(text) {
-
-        let safeText = escapeHTML(text);
-
-        safeText = safeText.replace(
-            /\*\*(.*?)\*\*/g,
-            "<strong>$1</strong>"
-        );
-
-        safeText = safeText.replace(
-            /\n/g,
-            "<br>"
-        );
-
-        return safeText;
-    }
-
-
-    function addUserMessage(message) {
-
-        if (!chatMessages) return;
-
-        const messageContainer =
-            document.createElement("div");
-
-        messageContainer.className =
-            "chat-message user";
-
-        messageContainer.innerHTML = `
-            <div class="message-bubble">
-                <span class="message-role">YOU</span>
-                <div>
-                    ${escapeHTML(message).replace(/\n/g, "<br>")}
-                </div>
-            </div>
-        `;
-
-        chatMessages.appendChild(messageContainer);
-
-        scrollChatToBottom();
-    }
-
-
-    function addAIMessage(message) {
-
-        if (!chatMessages) return;
-
-        const messageContainer =
-            document.createElement("div");
-
-        messageContainer.className =
-            "chat-message ai";
-
-        messageContainer.innerHTML = `
-            <div class="message-bubble">
-                <span class="message-role">DG AI</span>
-                <div>
-                    ${formatAIResponse(message)}
-                </div>
-            </div>
-        `;
-
-        chatMessages.appendChild(messageContainer);
-
-        scrollChatToBottom();
-    }
-
-
-    function showTyping() {
-
-        if (typingIndicator) {
-            typingIndicator.classList.add("active");
+        if (chatInput) {
+            chatInput.focus();
         }
 
-        scrollChatToBottom();
+    }, 300);
+}
+
+
+function closeAI() {
+
+    if (!aiModal) {
+        return;
     }
 
+    aiModal.classList.remove("active");
+}
 
-    function hideTyping() {
 
-        if (typingIndicator) {
-            typingIndicator.classList.remove("active");
+/* Close modal when clicking outside */
+
+if (aiModal) {
+
+    aiModal.addEventListener("click", (event) => {
+
+        if (event.target === aiModal) {
+            closeAI();
         }
+
+    });
+
+}
+
+
+/* Close modal with Escape */
+
+document.addEventListener("keydown", (event) => {
+
+    if (event.key === "Escape") {
+        closeAI();
     }
 
+});
 
-    /* =========================
-       ASK AI
-    ========================= */
 
-    async function askAI(question) {
+/* =========================================================
+   SCROLL TO BUSINESS TOOLS
+========================================================= */
 
-        if (!question || !question.trim()) {
+function scrollToTools() {
+
+    const tools =
+        document.getElementById("tools");
+
+    if (tools) {
+
+        tools.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+}
+
+
+/* =========================================================
+   SHOW CALCULATOR
+========================================================= */
+
+function showCalculator() {
+
+    const calculator =
+        document.getElementById("calculator");
+
+    if (calculator) {
+
+        calculator.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN AI WITH A PRE-MADE QUESTION
+========================================================= */
+
+function openAIWithPrompt(prompt) {
+
+    openAI();
+
+    setTimeout(() => {
+
+        if (!chatInput) {
             return;
         }
 
-        const cleanQuestion = question.trim();
+        chatInput.value = prompt;
 
-        addUserMessage(cleanQuestion);
+        chatInput.focus();
 
-        if (chatInput) {
-            chatInput.value = "";
-            chatInput.style.height = "46px";
-        }
+    }, 350);
 
-        if (sendButton) {
-            sendButton.disabled = true;
-        }
+}
 
-        showTyping();
 
-        try {
+/* =========================================================
+   AI SUGGESTION BUTTONS
+========================================================= */
 
-            const response = await fetch(
+function useSuggestion(prompt) {
+
+    if (!chatInput) {
+        return;
+    }
+
+    chatInput.value = prompt;
+
+    chatInput.focus();
+
+    sendMessage();
+
+}
+
+
+/* =========================================================
+   ADD USER MESSAGE
+========================================================= */
+
+function addUserMessage(message) {
+
+    if (!chatMessages) {
+        return;
+    }
+
+    const messageBox =
+        document.createElement("div");
+
+    messageBox.className =
+        "chat-message user-message";
+
+    const label =
+        document.createElement("span");
+
+    label.className =
+        "message-label";
+
+    label.textContent =
+        "YOU";
+
+
+    const text =
+        document.createElement("p");
+
+    text.textContent =
+        message;
+
+
+    messageBox.appendChild(label);
+
+    messageBox.appendChild(text);
+
+    chatMessages.appendChild(messageBox);
+
+    scrollChatToBottom();
+
+}
+
+
+/* =========================================================
+   ADD AI MESSAGE
+========================================================= */
+
+function addAIMessage(message) {
+
+    if (!chatMessages) {
+        return;
+    }
+
+    const messageBox =
+        document.createElement("div");
+
+    messageBox.className =
+        "chat-message ai-message";
+
+
+    const label =
+        document.createElement("span");
+
+    label.className =
+        "message-label";
+
+    label.textContent =
+        "DG AI";
+
+
+    const text =
+        document.createElement("p");
+
+
+    /*
+       textContent is intentionally used instead
+       of innerHTML for safer AI output.
+    */
+
+    text.textContent =
+        message;
+
+
+    messageBox.appendChild(label);
+
+    messageBox.appendChild(text);
+
+    chatMessages.appendChild(messageBox);
+
+    scrollChatToBottom();
+
+}
+
+
+/* =========================================================
+   SCROLL CHAT TO BOTTOM
+========================================================= */
+
+function scrollChatToBottom() {
+
+    if (!chatMessages) {
+        return;
+    }
+
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
+
+}
+
+
+/* =========================================================
+   SHOW TYPING INDICATOR
+========================================================= */
+
+function showTyping() {
+
+    if (!typingIndicator) {
+        return;
+    }
+
+    typingIndicator.classList.add("active");
+
+    scrollChatToBottom();
+
+}
+
+
+/* =========================================================
+   HIDE TYPING INDICATOR
+========================================================= */
+
+function hideTyping() {
+
+    if (!typingIndicator) {
+        return;
+    }
+
+    typingIndicator.classList.remove("active");
+
+}
+
+
+/* =========================================================
+   SEND AI MESSAGE
+========================================================= */
+
+async function sendMessage() {
+
+    if (!chatInput) {
+        return;
+    }
+
+
+    const message =
+        chatInput.value.trim();
+
+
+    /* Don't send empty messages */
+
+    if (!message) {
+        return;
+    }
+
+
+    /* Prevent duplicate requests */
+
+    if (
+        sendButton &&
+        sendButton.disabled
+    ) {
+        return;
+    }
+
+
+    /* Add user's message */
+
+    addUserMessage(message);
+
+
+    /* Clear input */
+
+    chatInput.value = "";
+
+
+    /* Disable button */
+
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
+
+
+    /* Show AI thinking */
+
+    showTyping();
+
+
+    try {
+
+        console.log(
+            "Sending message to /api/chat..."
+        );
+
+
+        const response =
+            await fetch(
                 "/api/chat",
                 {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type":
+                            "application/json"
                     },
 
                     body: JSON.stringify({
-                        message: cleanQuestion
+                        message: message
                     })
                 }
             );
 
 
-            let data;
+        /*
+           Try to read JSON response.
+        */
 
-            try {
-
-                data = await response.json();
-
-            } catch (error) {
-
-                throw new Error(
-                    "Invalid server response."
-                );
-
-            }
+        let data = null;
 
 
-            if (!response.ok) {
+        try {
 
-                throw new Error(
-                    data.error ||
-                    data.message ||
-                    "AI server error."
-                );
+            data =
+                await response.json();
 
-            }
-
-
-            hideTyping();
-
-
-            const aiReply =
-                data.reply ||
-                data.response ||
-                data.message ||
-                data.content;
-
-
-            if (aiReply) {
-
-                addAIMessage(aiReply);
-
-            } else {
-
-                addAIMessage(
-                    "Sorry, I received an empty response. Please try again."
-                );
-
-            }
-
-
-        } catch (error) {
+        } catch (jsonError) {
 
             console.error(
-                "AI Error:",
-                error
+                "Could not read server response:",
+                jsonError
             );
-
-            hideTyping();
-
-            addAIMessage(
-                "Sorry, I couldn't connect to the AI right now. Please try again."
-            );
-
-        } finally {
-
-            if (sendButton) {
-                sendButton.disabled = false;
-            }
-
-            if (chatInput) {
-                chatInput.focus();
-            }
 
         }
-    }
 
 
-    /* =========================
-       SEND BUTTON
-    ========================= */
+        /* Hide typing */
 
-    if (sendButton) {
-
-        sendButton.addEventListener(
-            "click",
-            () => {
-
-                if (!chatInput) return;
-
-                const question =
-                    chatInput.value.trim();
-
-                if (question) {
-                    askAI(question);
-                }
-
-            }
-        );
-
-    }
+        hideTyping();
 
 
-    /* =========================
-       ENTER TO SEND
-    ========================= */
+        /*
+           Check HTTP response.
+        */
 
-    if (chatInput) {
+        if (!response.ok) {
 
-        chatInput.addEventListener(
-            "keydown",
-            (event) => {
+            const serverError =
+                data?.error ||
+                "The AI server returned an error.";
 
-                if (
-                    event.key === "Enter" &&
-                    !event.shiftKey
-                ) {
-
-                    event.preventDefault();
-
-                    const question =
-                        chatInput.value.trim();
-
-                    if (
-                        question &&
-                        sendButton &&
-                        !sendButton.disabled
-                    ) {
-
-                        askAI(question);
-
-                    }
-
-                }
-
-            }
-        );
+            console.error(
+                "AI server error:",
+                serverError
+            );
 
 
-        chatInput.addEventListener(
-            "input",
-            () => {
-
-                chatInput.style.height =
-                    "auto";
-
-                const height =
-                    Math.min(
-                        chatInput.scrollHeight,
-                        130
-                    );
-
-                chatInput.style.height =
-                    height + "px";
-
-            }
-        );
-
-    }
+            addAIMessage(
+                serverError
+            );
 
 
-    /* =========================
-       SUGGESTION BUTTONS
-    ========================= */
+            return;
+        }
 
-    const suggestions =
-        document.querySelectorAll(
-            ".suggestion-list button"
+
+        /*
+           Get AI reply.
+        */
+
+        const reply =
+            data?.reply;
+
+
+        if (
+            typeof reply !== "string" ||
+            !reply.trim()
+        ) {
+
+            console.error(
+                "AI returned an empty response."
+            );
+
+
+            addAIMessage(
+                "The AI returned an empty response. Please try again."
+            );
+
+
+            return;
+        }
+
+
+        /*
+           Display AI response.
+        */
+
+        addAIMessage(
+            reply.trim()
         );
 
 
-    suggestions.forEach(button => {
+    } catch (error) {
 
-        button.addEventListener(
-            "click",
-            () => {
-
-                const question =
-                    button.getAttribute(
-                        "data-question"
-                    ) ||
-                    button.textContent.trim();
-
-                if (!question) return;
-
-                if (chatInput) {
-
-                    chatInput.value =
-                        question;
-
-                    chatInput.dispatchEvent(
-                        new Event("input")
-                    );
-
-                    chatInput.focus();
-
-                }
-
-                askAI(question);
-
-            }
+        console.error(
+            "AI connection error:",
+            error
         );
 
-    });
+
+        hideTyping();
 
 
-    /* =========================
-       AI MODAL
-    ========================= */
-
-    function openAIModal() {
-
-        if (!aiModal) return;
-
-        aiModal.classList.add("active");
-
-        document.body.style.overflow =
-            "hidden";
-
-    }
-
-
-    function closeAIModal() {
-
-        if (!aiModal) return;
-
-        aiModal.classList.remove("active");
-
-        document.body.style.overflow =
-            "";
-
-    }
-
-
-    if (closeAi) {
-
-        closeAi.addEventListener(
-            "click",
-            closeAIModal
+        addAIMessage(
+            "Sorry, I couldn't connect to the AI right now. Please check your internet connection and try again."
         );
 
+
+    } finally {
+
+        /*
+           Re-enable send button.
+        */
+
+        if (sendButton) {
+            sendButton.disabled = false;
+        }
+
+
+        /*
+           Put cursor back in input.
+        */
+
+        if (chatInput) {
+            chatInput.focus();
+        }
+
     }
 
-
-    if (aiModal) {
-
-        aiModal.addEventListener(
-            "click",
-            (event) => {
-
-                if (
-                    event.target === aiModal
-                ) {
-
-                    closeAIModal();
-
-                }
-
-            }
-        );
-
-    }
+}
 
 
-    document.addEventListener(
+/* =========================================================
+   ENTER KEY TO SEND
+========================================================= */
+
+if (chatInput) {
+
+    chatInput.addEventListener(
         "keydown",
         (event) => {
 
-            if (event.key === "Escape") {
-                closeAIModal();
+            /*
+               Enter sends the message.
+               Shift + Enter creates a new line.
+            */
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+
             }
 
         }
     );
 
 
-    /* =========================
-       OPEN AI BUTTONS
-    ========================= */
+    /*
+       Automatically expand textarea slightly.
+    */
 
-    const aiButtons =
-        document.querySelectorAll(
-            '[data-open-ai], .open-ai, .ai-button'
-        );
+    chatInput.addEventListener(
+        "input",
+        () => {
 
+            chatInput.style.height =
+                "auto";
 
-    aiButtons.forEach(button => {
+            chatInput.style.height =
+                Math.min(
+                    chatInput.scrollHeight,
+                    150
+                ) + "px";
 
-        button.addEventListener(
-            "click",
-            (event) => {
+        }
+    );
 
-                const href =
-                    button.getAttribute(
-                        "href"
-                    );
-
-                if (
-                    !href ||
-                    href === "#ai"
-                ) {
-
-                    event.preventDefault();
-
-                    openAIModal();
-
-                    setTimeout(
-                        () => {
-
-                            if (chatInput) {
-                                chatInput.focus();
-                            }
-
-                        },
-                        200
-                    );
-
-                }
-
-            }
-        );
-
-    });
+}
 
 
-    /* =========================
-       SMOOTH SCROLL
-    ========================= */
+/* =========================================================
+   PROFIT CALCULATOR
+========================================================= */
 
-    document.querySelectorAll(
-        'a[href^="#"]'
-    ).forEach(link => {
+function calculateProfit() {
 
-        link.addEventListener(
-            "click",
-            event => {
+    /*
+       Get the calculator inputs.
+    */
 
-                const id =
-                    link.getAttribute(
-                        "href"
-                    );
-
-                if (
-                    !id ||
-                    id === "#"
-                ) {
-                    return;
-                }
-
-                const target =
-                    document.querySelector(id);
-
-                if (target) {
-
-                    event.preventDefault();
-
-                    target.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                }
-
-            }
-        );
-
-    });
-
-
-    /* =====================================================
-       🔴 BUSINESS PROFIT CALCULATOR
-       REVENUE - EXPENSES
-    ===================================================== */
-
-    const revenueInput =
+    const revenueElement =
+        document.getElementById(
+            "revenueInput"
+        ) ||
         document.getElementById(
             "revenue"
         );
 
 
-    const expensesInput =
+    const expenseElement =
+        document.getElementById(
+            "expenseInput"
+        ) ||
         document.getElementById(
             "expenses"
         );
 
 
-    const calculateButton =
-        document.getElementById(
-            "calculateProfit"
-        );
-
-
-    const profitResult =
+    const resultElement =
         document.getElementById(
             "profitResult"
         );
 
 
-    function formatNaira(number) {
+    /*
+       Check calculator elements.
+    */
 
-        return new Intl.NumberFormat(
+    if (
+        !revenueElement ||
+        !expenseElement ||
+        !resultElement
+    ) {
+
+        console.error(
+            "Calculator elements not found."
+        );
+
+        return;
+    }
+
+
+    /*
+       Convert input values into numbers.
+    */
+
+    const revenue =
+        Number(
+            revenueElement.value
+        );
+
+
+    const expenses =
+        Number(
+            expenseElement.value
+        );
+
+
+    /*
+       Validate numbers.
+    */
+
+    if (
+        !Number.isFinite(revenue) ||
+        !Number.isFinite(expenses)
+    ) {
+
+        resultElement.textContent =
+            "Please enter valid numbers.";
+
+        return;
+    }
+
+
+    /*
+       Don't allow negative values.
+    */
+
+    if (
+        revenue < 0 ||
+        expenses < 0
+    ) {
+
+        resultElement.textContent =
+            "Please enter positive numbers.";
+
+        return;
+    }
+
+
+    /*
+       Calculate profit.
+    */
+
+    const profit =
+        revenue - expenses;
+
+
+    /*
+       Format as Nigerian Naira.
+    */
+
+    const formattedAmount =
+        new Intl.NumberFormat(
             "en-NG",
             {
                 style: "currency",
                 currency: "NGN",
-                minimumFractionDigits: 2
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }
-        ).format(number);
-
-    }
-
-
-    function calculateProfit() {
-
-        if (
-            !revenueInput ||
-            !expensesInput ||
-            !profitResult
-        ) {
-
-            console.error(
-                "Calculator elements not found."
-            );
-
-            return;
-        }
-
-
-        const revenue =
-            parseFloat(
-                revenueInput.value
-            );
-
-
-        const expenses =
-            parseFloat(
-                expensesInput.value
-            );
-
-
-        if (
-            Number.isNaN(revenue) ||
-            Number.isNaN(expenses)
-        ) {
-
-            profitResult.classList.remove(
-                "success"
-            );
-
-            profitResult.textContent =
-                "Please enter valid revenue and expenses.";
-
-            return;
-        }
-
-
-        const profit =
-            revenue - expenses;
-
-
-        if (profit > 0) {
-
-            profitResult.classList.add(
-                "success"
-            );
-
-            profitResult.innerHTML = `
-                <strong>Estimated Profit:</strong>
-                ${formatNaira(profit)}
-                <br><br>
-                Revenue:
-                ${formatNaira(revenue)}
-                <br>
-                Expenses:
-                ${formatNaira(expenses)}
-            `;
-
-        }
-
-        else if (profit === 0) {
-
-            profitResult.classList.remove(
-                "success"
-            );
-
-            profitResult.innerHTML = `
-                <strong>Break-even:</strong>
-                Your revenue and expenses are equal.
-                <br><br>
-                Total:
-                ${formatNaira(revenue)}
-            `;
-
-        }
-
-        else {
-
-            profitResult.classList.remove(
-                "success"
-            );
-
-            profitResult.innerHTML = `
-                <strong>Estimated Loss:</strong>
-                ${formatNaira(Math.abs(profit))}
-                <br><br>
-                Revenue:
-                ${formatNaira(revenue)}
-                <br>
-                Expenses:
-                ${formatNaira(expenses)}
-            `;
-
-        }
-
-    }
-
-
-    /* =========================
-       CALCULATE BUTTON
-    ========================= */
-
-    if (calculateButton) {
-
-        calculateButton.addEventListener(
-            "click",
-            calculateProfit
+        ).format(
+            Math.abs(profit)
         );
 
+
+    /*
+       Display result.
+    */
+
+    if (profit > 0) {
+
+        resultElement.textContent =
+            "Your estimated profit is " +
+            formattedAmount;
+
+    }
+
+    else if (profit < 0) {
+
+        resultElement.textContent =
+            "Your estimated loss is " +
+            formattedAmount;
+
+    }
+
+    else {
+
+        resultElement.textContent =
+            "Your business is breaking even at " +
+            formattedAmount;
+
     }
 
 
-    /* =========================
-       CALCULATE WITH ENTER
-    ========================= */
+    /*
+       Visual feedback.
+    */
 
-    [revenueInput, expensesInput]
-        .filter(Boolean)
-        .forEach(input => {
+    resultElement.classList.add(
+        "show"
+    );
 
-            input.addEventListener(
-                "keydown",
-                event => {
+
+    /*
+       Scroll calculator result
+       into view slightly.
+    */
+
+    setTimeout(() => {
+
+        resultElement.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+    }, 100);
+
+}
+
+
+/* =========================================================
+   CALCULATOR ENTER KEY SUPPORT
+========================================================= */
+
+if (revenueInput) {
+
+    revenueInput.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (event.key === "Enter") {
+                calculateProfit();
+            }
+
+        }
+    );
+
+}
+
+
+if (expenseInput) {
+
+    expenseInput.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (event.key === "Enter") {
+                calculateProfit();
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SCROLL ANIMATION
+========================================================= */
+
+const sections =
+    document.querySelectorAll(
+        "main section"
+    );
+
+
+if (
+    "IntersectionObserver" in window
+) {
+
+    const observer =
+        new IntersectionObserver(
+            (entries) => {
+
+                entries.forEach(
+                    (entry) => {
+
+                        if (
+                            entry.isIntersecting
+                        ) {
+
+                            entry.target.classList.add(
+                                "visible"
+                            );
+
+                        }
+
+                    }
+                );
+
+            },
+            {
+                threshold: 0.08
+            }
+        );
+
+
+    sections.forEach(
+        (section) => {
+
+            observer.observe(
+                section
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SMOOTH NAVIGATION
+========================================================= */
+
+document
+    .querySelectorAll(
+        'a[href^="#"]'
+    )
+    .forEach(
+        (link) => {
+
+            link.addEventListener(
+                "click",
+                (event) => {
+
+                    const targetId =
+                        link.getAttribute(
+                            "href"
+                        );
+
 
                     if (
-                        event.key === "Enter"
+                        !targetId ||
+                        targetId === "#"
                     ) {
+                        return;
+                    }
+
+
+                    const target =
+                        document.querySelector(
+                            targetId
+                        );
+
+
+                    if (target) {
 
                         event.preventDefault();
 
-                        calculateProfit();
+                        target.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
 
                     }
 
                 }
             );
 
-        });
+        }
+    );
 
 
-    /* =========================
-       FEATURE BUTTONS
-    ========================= */
+/* =========================================================
+   FOOTER YEAR
+========================================================= */
 
-    const toolButtons =
-        document.querySelectorAll(
-            ".tool-button"
-        );
+const currentYear =
+    new Date().getFullYear();
 
 
-    toolButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const tool =
-                    button.getAttribute(
-                        "data-tool"
-                    );
-
-
-                if (tool === "ai") {
-
-                    const aiSection =
-                        document.getElementById(
-                            "ai"
-                        );
-
-                    if (aiSection) {
-
-                        aiSection.scrollIntoView({
-                            behavior: "smooth"
-                        });
-
-                    }
-
-                    setTimeout(
-                        () => {
-
-                            if (chatInput) {
-                                chatInput.focus();
-                            }
-
-                        },
-                        600
-                    );
-
-                }
-
-
-                if (
-                    tool === "calculator"
-                ) {
-
-                    const calculator =
-                        document.getElementById(
-                            "calculator"
-                        );
-
-                    if (calculator) {
-
-                        calculator.scrollIntoView({
-                            behavior: "smooth"
-                        });
-
-                    }
-
-                }
-
-            }
-        );
-
-    });
-
-
-    /* =========================
-       ACTIVE NAVIGATION
-    ========================= */
-
-    const sections =
-        document.querySelectorAll(
-            "section[id]"
-        );
-
-
-    const navLinks =
-        document.querySelectorAll(
-            ".nav-links a"
-        );
-
-
-    function updateActiveNav() {
-
-        let currentSection = "";
-
-
-        sections.forEach(section => {
-
-            const top =
-                section.offsetTop - 160;
-
+document
+    .querySelectorAll(
+        "footer p"
+    )
+    .forEach(
+        (element) => {
 
             if (
-                window.scrollY >= top
+                element.textContent.includes(
+                    "2026"
+                )
             ) {
 
-                currentSection =
-                    section.getAttribute(
-                        "id"
+                element.textContent =
+                    element.textContent.replace(
+                        "2026",
+                        currentYear
                     );
 
             }
 
-        });
+        }
+    );
 
 
-        navLinks.forEach(link => {
+/* =========================================================
+   PAGE LOADED
+========================================================= */
 
-            link.classList.remove(
-                "active"
-            );
+window.addEventListener(
+    "load",
+    () => {
 
+        console.log(
+            "✅ DENIS GODSON BUSINESS HUB V5 loaded."
+        );
 
-            const href =
-                link.getAttribute(
-                    "href"
-                );
+        console.log(
+            "🤖 DG AI system ready."
+        );
 
-
-            if (
-                href ===
-                "#" + currentSection
-            ) {
-
-                link.classList.add(
-                    "active"
-                );
-
-            }
-
-        });
+        console.log(
+            "🧮 Profit calculator ready."
+        );
 
     }
-
-
-    window.addEventListener(
-        "scroll",
-        updateActiveNav
-    );
-
-
-    updateActiveNav();
-
-
-    /* =========================
-       STARTUP MESSAGE
-    ========================= */
-
-    console.log(
-        "DENIS GODSON BUSINESS HUB V5 loaded successfully."
-    );
-
-    console.log(
-        "Profit calculator initialized."
-    );
-
-});
+);
