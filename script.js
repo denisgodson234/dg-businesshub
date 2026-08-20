@@ -1,13 +1,12 @@
 /* =========================================================
    DENIS GODSON BUSINESS HUB
-   VERSION 5
-   MAIN JAVASCRIPT
-   AI + PROFIT CALCULATOR + UI
+   VERSION 5.1
+   AI CHAT + CALCULATOR + CHAT HISTORY
 ========================================================= */
 
 
 /* =========================================================
-   GLOBAL ELEMENTS
+   ELEMENTS
 ========================================================= */
 
 const chatMessages =
@@ -36,14 +35,20 @@ const profitResult =
 
 
 /* =========================================================
+   CHAT STORAGE
+========================================================= */
+
+const CHAT_STORAGE_KEY =
+    "dg_business_hub_chat_v51";
+
+
+/* =========================================================
    AI MODAL
 ========================================================= */
 
 function openAI() {
 
-    if (!aiModal) {
-        return;
-    }
+    if (!aiModal) return;
 
     aiModal.classList.add("active");
 
@@ -53,82 +58,144 @@ function openAI() {
             chatInput.focus();
         }
 
-    }, 300);
+    }, 250);
+
 }
 
 
 function closeAI() {
 
-    if (!aiModal) {
-        return;
-    }
+    if (!aiModal) return;
 
     aiModal.classList.remove("active");
+
 }
 
-
-/* Close modal when clicking outside */
 
 if (aiModal) {
 
-    aiModal.addEventListener("click", (event) => {
+    aiModal.addEventListener(
+        "click",
+        (event) => {
 
-        if (event.target === aiModal) {
+            if (
+                event.target === aiModal
+            ) {
+
+                closeAI();
+
+            }
+
+        }
+    );
+
+}
+
+
+document.addEventListener(
+    "keydown",
+    (event) => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
             closeAI();
+
         }
 
-    });
-
-}
-
-
-/* Close modal with Escape */
-
-document.addEventListener("keydown", (event) => {
-
-    if (event.key === "Escape") {
-        closeAI();
     }
-
-});
+);
 
 
 /* =========================================================
-   SCROLL TO BUSINESS TOOLS
+   SAFE HTML ESCAPE
 ========================================================= */
 
-function scrollToTools() {
+function escapeHTML(text) {
 
-    const tools =
-        document.getElementById("tools");
+    const div =
+        document.createElement("div");
 
-    if (tools) {
+    div.textContent =
+        text;
 
-        tools.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-    }
+    return div.innerHTML;
 
 }
 
 
 /* =========================================================
-   SHOW CALCULATOR
+   FORMAT AI RESPONSE
 ========================================================= */
 
-function showCalculator() {
+function formatAIText(text) {
 
-    const calculator =
-        document.getElementById("calculator");
+    let safe =
+        escapeHTML(text);
 
-    if (calculator) {
 
-        calculator.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
+    /*
+       Bold text
+       **example**
+    */
+
+    safe =
+        safe.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+    /*
+       Inline code
+       `example`
+    */
+
+    safe =
+        safe.replace(
+            /`([^`]+)`/g,
+            "<code>$1</code>"
+        );
+
+
+    /*
+       New lines
+    */
+
+    safe =
+        safe.replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    return safe;
+
+}
+
+
+/* =========================================================
+   SAVE CHAT
+========================================================= */
+
+function saveChat() {
+
+    if (!chatMessages) return;
+
+    try {
+
+        localStorage.setItem(
+            CHAT_STORAGE_KEY,
+            chatMessages.innerHTML
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not save chat:",
+            error
+        );
 
     }
 
@@ -136,43 +203,79 @@ function showCalculator() {
 
 
 /* =========================================================
-   OPEN AI WITH A PRE-MADE QUESTION
+   LOAD CHAT
 ========================================================= */
 
-function openAIWithPrompt(prompt) {
+function loadChat() {
 
-    openAI();
+    if (!chatMessages) return;
 
-    setTimeout(() => {
+    try {
 
-        if (!chatInput) {
-            return;
+        const saved =
+            localStorage.getItem(
+                CHAT_STORAGE_KEY
+            );
+
+
+        if (saved) {
+
+            chatMessages.innerHTML =
+                saved;
+
+            addCopyButtonsToExistingMessages();
+
+            scrollChatToBottom();
+
         }
 
-        chatInput.value = prompt;
+    } catch (error) {
 
-        chatInput.focus();
+        console.error(
+            "Could not load chat:",
+            error
+        );
 
-    }, 350);
+    }
 
 }
 
 
 /* =========================================================
-   AI SUGGESTION BUTTONS
+   CLEAR CHAT
 ========================================================= */
 
-function useSuggestion(prompt) {
+function clearChat() {
 
-    if (!chatInput) {
+    if (!chatMessages) return;
+
+
+    const confirmed =
+        confirm(
+            "Clear your DG AI chat history?"
+        );
+
+
+    if (!confirmed) {
         return;
     }
 
-    chatInput.value = prompt;
 
-    chatInput.focus();
+    chatMessages.innerHTML = "";
 
-    sendMessage();
+
+    localStorage.removeItem(
+        CHAT_STORAGE_KEY
+    );
+
+
+    /*
+       Add a fresh welcome message.
+    */
+
+    addAIMessage(
+        "Hello! 👋 I'm DG AI. How can I help you today?"
+    );
 
 }
 
@@ -183,15 +286,15 @@ function useSuggestion(prompt) {
 
 function addUserMessage(message) {
 
-    if (!chatMessages) {
-        return;
-    }
+    if (!chatMessages) return;
+
 
     const messageBox =
         document.createElement("div");
 
     messageBox.className =
         "chat-message user-message";
+
 
     const label =
         document.createElement("span");
@@ -210,13 +313,23 @@ function addUserMessage(message) {
         message;
 
 
-    messageBox.appendChild(label);
+    messageBox.appendChild(
+        label
+    );
 
-    messageBox.appendChild(text);
+    messageBox.appendChild(
+        text
+    );
 
-    chatMessages.appendChild(messageBox);
+
+    chatMessages.appendChild(
+        messageBox
+    );
+
 
     scrollChatToBottom();
+
+    saveChat();
 
 }
 
@@ -227,9 +340,8 @@ function addUserMessage(message) {
 
 function addAIMessage(message) {
 
-    if (!chatMessages) {
-        return;
-    }
+    if (!chatMessages) return;
+
 
     const messageBox =
         document.createElement("div");
@@ -251,125 +363,299 @@ function addAIMessage(message) {
     const text =
         document.createElement("p");
 
+    text.innerHTML =
+        formatAIText(message);
+
+
+    messageBox.appendChild(
+        label
+    );
+
+    messageBox.appendChild(
+        text
+    );
+
 
     /*
-       textContent is intentionally used instead
-       of innerHTML for safer AI output.
+       Copy button
     */
 
-    text.textContent =
-        message;
+    const copyButton =
+        document.createElement("button");
+
+    copyButton.className =
+        "copy-ai-button";
+
+    copyButton.type =
+        "button";
+
+    copyButton.textContent =
+        "📋 Copy";
 
 
-    messageBox.appendChild(label);
+    copyButton.addEventListener(
+        "click",
+        async () => {
 
-    messageBox.appendChild(text);
+            try {
 
-    chatMessages.appendChild(messageBox);
+                await navigator.clipboard.writeText(
+                    message
+                );
+
+                copyButton.textContent =
+                    "✓ Copied";
+
+
+                setTimeout(() => {
+
+                    copyButton.textContent =
+                        "📋 Copy";
+
+                }, 1500);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Copy failed:",
+                    error
+                );
+
+                copyButton.textContent =
+                    "Copy failed";
+
+            }
+
+        }
+    );
+
+
+    messageBox.appendChild(
+        copyButton
+    );
+
+
+    chatMessages.appendChild(
+        messageBox
+    );
+
 
     scrollChatToBottom();
+
+    saveChat();
 
 }
 
 
 /* =========================================================
-   SCROLL CHAT TO BOTTOM
+   ADD COPY BUTTONS TO SAVED MESSAGES
+========================================================= */
+
+function addCopyButtonsToExistingMessages() {
+
+    if (!chatMessages) return;
+
+
+    const aiMessages =
+        chatMessages.querySelectorAll(
+            ".ai-message"
+        );
+
+
+    aiMessages.forEach(
+        (messageBox) => {
+
+            if (
+                messageBox.querySelector(
+                    ".copy-ai-button"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const textElement =
+                messageBox.querySelector("p");
+
+
+            if (!textElement) {
+                return;
+            }
+
+
+            const copyButton =
+                document.createElement("button");
+
+
+            copyButton.className =
+                "copy-ai-button";
+
+
+            copyButton.type =
+                "button";
+
+
+            copyButton.textContent =
+                "📋 Copy";
+
+
+            copyButton.addEventListener(
+                "click",
+                async () => {
+
+                    try {
+
+                        await navigator.clipboard.writeText(
+                            textElement.innerText
+                        );
+
+
+                        copyButton.textContent =
+                            "✓ Copied";
+
+
+                        setTimeout(() => {
+
+                            copyButton.textContent =
+                                "📋 Copy";
+
+                        }, 1500);
+
+
+                    } catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+                    }
+
+                }
+            );
+
+
+            messageBox.appendChild(
+                copyButton
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SCROLL CHAT
 ========================================================= */
 
 function scrollChatToBottom() {
 
-    if (!chatMessages) {
-        return;
-    }
+    if (!chatMessages) return;
 
-    chatMessages.scrollTop =
-        chatMessages.scrollHeight;
+
+    setTimeout(() => {
+
+        chatMessages.scrollTop =
+            chatMessages.scrollHeight;
+
+    }, 50);
 
 }
 
 
 /* =========================================================
-   SHOW TYPING INDICATOR
+   TYPING INDICATOR
 ========================================================= */
 
 function showTyping() {
 
-    if (!typingIndicator) {
-        return;
-    }
+    if (!typingIndicator) return;
 
-    typingIndicator.classList.add("active");
+    typingIndicator.classList.add(
+        "active"
+    );
 
     scrollChatToBottom();
 
 }
 
 
-/* =========================================================
-   HIDE TYPING INDICATOR
-========================================================= */
-
 function hideTyping() {
 
-    if (!typingIndicator) {
-        return;
-    }
+    if (!typingIndicator) return;
 
-    typingIndicator.classList.remove("active");
+    typingIndicator.classList.remove(
+        "active"
+    );
 
 }
 
 
 /* =========================================================
-   SEND AI MESSAGE
+   SEND MESSAGE
 ========================================================= */
 
 async function sendMessage() {
 
-    if (!chatInput) {
-        return;
-    }
+    if (!chatInput) return;
 
 
     const message =
         chatInput.value.trim();
 
 
-    /* Don't send empty messages */
-
     if (!message) {
         return;
     }
 
 
-    /* Prevent duplicate requests */
-
     if (
         sendButton &&
         sendButton.disabled
     ) {
+
         return;
+
     }
 
 
-    /* Add user's message */
+    /*
+       Add user message
+    */
 
-    addUserMessage(message);
+    addUserMessage(
+        message
+    );
 
 
-    /* Clear input */
+    /*
+       Clear input
+    */
 
     chatInput.value = "";
 
+    chatInput.style.height =
+        "auto";
 
-    /* Disable button */
+
+    /*
+       Disable button
+    */
 
     if (sendButton) {
-        sendButton.disabled = true;
+
+        sendButton.disabled =
+            true;
+
     }
 
 
-    /* Show AI thinking */
+    /*
+       Show typing
+    */
 
     showTyping();
 
@@ -377,7 +663,7 @@ async function sendMessage() {
     try {
 
         console.log(
-            "Sending message to /api/chat..."
+            "🤖 Sending message to DG AI..."
         );
 
 
@@ -393,15 +679,13 @@ async function sendMessage() {
                     },
 
                     body: JSON.stringify({
-                        message: message
+                        message:
+                            message
                     })
+
                 }
             );
 
-
-        /*
-           Try to read JSON response.
-        */
 
         let data = null;
 
@@ -411,49 +695,36 @@ async function sendMessage() {
             data =
                 await response.json();
 
-        } catch (jsonError) {
+        } catch (error) {
 
             console.error(
-                "Could not read server response:",
-                jsonError
+                "Invalid server response:",
+                error
             );
 
         }
 
-
-        /* Hide typing */
 
         hideTyping();
 
 
-        /*
-           Check HTTP response.
-        */
-
         if (!response.ok) {
 
-            const serverError =
+            const errorMessage =
                 data?.error ||
                 "The AI server returned an error.";
 
-            console.error(
-                "AI server error:",
-                serverError
-            );
-
 
             addAIMessage(
-                serverError
+                "⚠️ " +
+                errorMessage
             );
 
 
             return;
+
         }
 
-
-        /*
-           Get AI reply.
-        */
 
         const reply =
             data?.reply;
@@ -464,22 +735,18 @@ async function sendMessage() {
             !reply.trim()
         ) {
 
-            console.error(
-                "AI returned an empty response."
-            );
-
-
             addAIMessage(
-                "The AI returned an empty response. Please try again."
+                "⚠️ The AI returned an empty response. Please try again."
             );
 
 
             return;
+
         }
 
 
         /*
-           Display AI response.
+           Display AI answer
         */
 
         addAIMessage(
@@ -499,27 +766,24 @@ async function sendMessage() {
 
 
         addAIMessage(
-            "Sorry, I couldn't connect to the AI right now. Please check your internet connection and try again."
+            "⚠️ I couldn't connect to the AI right now. Please check your internet connection and try again."
         );
 
 
     } finally {
 
-        /*
-           Re-enable send button.
-        */
-
         if (sendButton) {
-            sendButton.disabled = false;
+
+            sendButton.disabled =
+                false;
+
         }
 
 
-        /*
-           Put cursor back in input.
-        */
-
         if (chatInput) {
+
             chatInput.focus();
+
         }
 
     }
@@ -528,7 +792,7 @@ async function sendMessage() {
 
 
 /* =========================================================
-   ENTER KEY TO SEND
+   ENTER TO SEND
 ========================================================= */
 
 if (chatInput) {
@@ -536,11 +800,6 @@ if (chatInput) {
     chatInput.addEventListener(
         "keydown",
         (event) => {
-
-            /*
-               Enter sends the message.
-               Shift + Enter creates a new line.
-            */
 
             if (
                 event.key === "Enter" &&
@@ -557,16 +816,13 @@ if (chatInput) {
     );
 
 
-    /*
-       Automatically expand textarea slightly.
-    */
-
     chatInput.addEventListener(
         "input",
         () => {
 
             chatInput.style.height =
                 "auto";
+
 
             chatInput.style.height =
                 Math.min(
@@ -581,14 +837,99 @@ if (chatInput) {
 
 
 /* =========================================================
+   SUGGESTIONS
+========================================================= */
+
+function useSuggestion(prompt) {
+
+    if (!chatInput) return;
+
+
+    chatInput.value =
+        prompt;
+
+
+    chatInput.focus();
+
+
+    sendMessage();
+
+}
+
+
+/* =========================================================
+   OPEN AI WITH PROMPT
+========================================================= */
+
+function openAIWithPrompt(prompt) {
+
+    openAI();
+
+
+    setTimeout(() => {
+
+        if (!chatInput) return;
+
+
+        chatInput.value =
+            prompt;
+
+
+        chatInput.focus();
+
+    }, 300);
+
+}
+
+
+/* =========================================================
+   BUSINESS TOOLS
+========================================================= */
+
+function scrollToTools() {
+
+    const tools =
+        document.getElementById(
+            "tools"
+        );
+
+
+    if (tools) {
+
+        tools.scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }
+
+}
+
+
+function showCalculator() {
+
+    const calculator =
+        document.getElementById(
+            "calculator"
+        );
+
+
+    if (calculator) {
+
+        calculator.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+
+}
+
+
+/* =========================================================
    PROFIT CALCULATOR
 ========================================================= */
 
 function calculateProfit() {
-
-    /*
-       Get the calculator inputs.
-    */
 
     const revenueElement =
         document.getElementById(
@@ -614,10 +955,6 @@ function calculateProfit() {
         );
 
 
-    /*
-       Check calculator elements.
-    */
-
     if (
         !revenueElement ||
         !expenseElement ||
@@ -629,12 +966,9 @@ function calculateProfit() {
         );
 
         return;
+
     }
 
-
-    /*
-       Convert input values into numbers.
-    */
 
     const revenue =
         Number(
@@ -648,10 +982,6 @@ function calculateProfit() {
         );
 
 
-    /*
-       Validate numbers.
-    */
-
     if (
         !Number.isFinite(revenue) ||
         !Number.isFinite(expenses)
@@ -661,12 +991,9 @@ function calculateProfit() {
             "Please enter valid numbers.";
 
         return;
+
     }
 
-
-    /*
-       Don't allow negative values.
-    */
 
     if (
         revenue < 0 ||
@@ -677,20 +1004,13 @@ function calculateProfit() {
             "Please enter positive numbers.";
 
         return;
+
     }
 
-
-    /*
-       Calculate profit.
-    */
 
     const profit =
         revenue - expenses;
 
-
-    /*
-       Format as Nigerian Naira.
-    */
 
     const formattedAmount =
         new Intl.NumberFormat(
@@ -705,10 +1025,6 @@ function calculateProfit() {
             Math.abs(profit)
         );
 
-
-    /*
-       Display result.
-    */
 
     if (profit > 0) {
 
@@ -735,34 +1051,15 @@ function calculateProfit() {
     }
 
 
-    /*
-       Visual feedback.
-    */
-
     resultElement.classList.add(
         "show"
     );
-
-
-    /*
-       Scroll calculator result
-       into view slightly.
-    */
-
-    setTimeout(() => {
-
-        resultElement.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest"
-        });
-
-    }, 100);
 
 }
 
 
 /* =========================================================
-   CALCULATOR ENTER KEY SUPPORT
+   CALCULATOR ENTER KEY
 ========================================================= */
 
 if (revenueInput) {
@@ -771,8 +1068,12 @@ if (revenueInput) {
         "keydown",
         (event) => {
 
-            if (event.key === "Enter") {
+            if (
+                event.key === "Enter"
+            ) {
+
                 calculateProfit();
+
             }
 
         }
@@ -787,158 +1088,36 @@ if (expenseInput) {
         "keydown",
         (event) => {
 
-            if (event.key === "Enter") {
-                calculateProfit();
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SCROLL ANIMATION
-========================================================= */
-
-const sections =
-    document.querySelectorAll(
-        "main section"
-    );
-
-
-if (
-    "IntersectionObserver" in window
-) {
-
-    const observer =
-        new IntersectionObserver(
-            (entries) => {
-
-                entries.forEach(
-                    (entry) => {
-
-                        if (
-                            entry.isIntersecting
-                        ) {
-
-                            entry.target.classList.add(
-                                "visible"
-                            );
-
-                        }
-
-                    }
-                );
-
-            },
-            {
-                threshold: 0.08
-            }
-        );
-
-
-    sections.forEach(
-        (section) => {
-
-            observer.observe(
-                section
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SMOOTH NAVIGATION
-========================================================= */
-
-document
-    .querySelectorAll(
-        'a[href^="#"]'
-    )
-    .forEach(
-        (link) => {
-
-            link.addEventListener(
-                "click",
-                (event) => {
-
-                    const targetId =
-                        link.getAttribute(
-                            "href"
-                        );
-
-
-                    if (
-                        !targetId ||
-                        targetId === "#"
-                    ) {
-                        return;
-                    }
-
-
-                    const target =
-                        document.querySelector(
-                            targetId
-                        );
-
-
-                    if (target) {
-
-                        event.preventDefault();
-
-                        target.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-
-/* =========================================================
-   FOOTER YEAR
-========================================================= */
-
-const currentYear =
-    new Date().getFullYear();
-
-
-document
-    .querySelectorAll(
-        "footer p"
-    )
-    .forEach(
-        (element) => {
-
             if (
-                element.textContent.includes(
-                    "2026"
-                )
+                event.key === "Enter"
             ) {
 
-                element.textContent =
-                    element.textContent.replace(
-                        "2026",
-                        currentYear
-                    );
+                calculateProfit();
 
             }
 
         }
     );
 
+}
+
 
 /* =========================================================
-   PAGE LOADED
+   LOAD SAVED CHAT
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadChat();
+
+    }
+);
+
+
+/* =========================================================
+   PAGE READY
 ========================================================= */
 
 window.addEventListener(
@@ -946,15 +1125,31 @@ window.addEventListener(
     () => {
 
         console.log(
-            "✅ DENIS GODSON BUSINESS HUB V5 loaded."
+            "================================="
         );
 
         console.log(
-            "🤖 DG AI system ready."
+            "🚀 DENIS GODSON BUSINESS HUB V5.1"
         );
 
         console.log(
-            "🧮 Profit calculator ready."
+            "🤖 DG AI ready"
+        );
+
+        console.log(
+            "💾 Chat history ready"
+        );
+
+        console.log(
+            "📋 Copy system ready"
+        );
+
+        console.log(
+            "🧮 Calculator ready"
+        );
+
+        console.log(
+            "================================="
         );
 
     }
