@@ -1,0 +1,19 @@
+{
+  "name": "DENIS GODSON BUSINESS HUB",
+  "short_name": "DG BUSINESS HUB",
+  "description": "AI-powered business and learning platform by DENIS GODSON BUSINESS HUB.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
