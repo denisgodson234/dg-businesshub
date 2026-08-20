@@ -1483,3 +1483,281 @@ footer {
         font-size:8px;
     }
 }
+/* =========================================================
+   DG AI CHAT MESSAGE LAYOUT
+   USER = RIGHT
+   AI = LEFT
+========================================================= */
+
+/* Chat messages container */
+#chatMessages {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px 10px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+
+/* =========================================================
+   ALL CHAT MESSAGES
+========================================================= */
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    max-width: 78%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    animation: messageAppear 0.3s ease;
+}
+
+
+/* Message text */
+.chat-message p {
+    margin: 5px 0 0;
+    white-space: pre-wrap;
+}
+
+
+/* Message label */
+.message-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+}
+
+
+/* =========================================================
+   USER MESSAGE — RIGHT SIDE
+========================================================= */
+
+.user-message {
+    align-self: flex-end;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff1744,
+            #c90035
+        );
+
+    color: #ffffff;
+
+    border:
+        1px solid rgba(
+            255,
+            23,
+            68,
+            0.7
+        );
+
+    border-radius:
+        18px 18px 5px 18px;
+
+    box-shadow:
+        0 0 18px
+        rgba(
+            255,
+            23,
+            68,
+            0.25
+        );
+
+    text-align: left;
+}
+
+
+.user-message .message-label {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   AI MESSAGE — LEFT SIDE
+========================================================= */
+
+.ai-message {
+    align-self: flex-start;
+
+    background:
+        linear-gradient(
+            135deg,
+            #151515,
+            #0d0d0d
+        );
+
+    color: #eeeeee;
+
+    border:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.10
+        );
+
+    border-radius:
+        18px 18px 18px 5px;
+
+    box-shadow:
+        0 0 18px
+        rgba(
+            255,
+            23,
+            68,
+            0.08
+        );
+
+    text-align: left;
+}
+
+
+.ai-message .message-label {
+    color: #ff1744;
+}
+
+
+/* =========================================================
+   MESSAGE HOVER
+========================================================= */
+
+.user-message:hover,
+.ai-message:hover {
+
+    transform: translateY(-1px);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* =========================================================
+   MESSAGE ANIMATION
+========================================================= */
+
+@keyframes messageAppear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(10px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE CHAT
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .chat-message {
+
+        max-width: 84%;
+
+        padding:
+            13px 15px;
+
+        font-size: 15px;
+
+    }
+
+}
+
+
+/* =========================================================
+   AI TYPING INDICATOR
+========================================================= */
+
+#typingIndicator {
+
+    display: none;
+
+    align-self: flex-start;
+
+    padding:
+        12px 18px;
+
+    margin:
+        5px 0;
+
+    border-radius:
+        18px 18px 18px 5px;
+
+    background:
+        #111111;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            23,
+            68,
+            0.25
+        );
+
+    color:
+        #ff1744;
+
+}
+
+
+/* Show typing indicator */
+
+#typingIndicator.active {
+
+    display: flex;
+
+}
+
+
+/* =========================================================
+   CHAT INPUT AREA
+========================================================= */
+
+#chatInput {
+
+    resize: none;
+
+    min-height:
+        54px;
+
+    max-height:
+        150px;
+
+}
+
+
+/* Send button disabled */
+
+#sendButton:disabled {
+
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+
+}
