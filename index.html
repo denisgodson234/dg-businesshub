@@ -5,23 +5,31 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <meta name="description"
-          content="DENIS GODSON BUSINESS HUB - AI-powered business and learning platform.">
+    <meta
+        name="description"
+        content="DENIS GODSON BUSINESS HUB - AI-powered business and learning platform.">
 
-    <meta name="theme-color"
-          content="#050505">
+    <meta
+        name="theme-color"
+        content="#050505">
 
-    <title>DENIS GODSON BUSINESS HUB</title>
+    <title>
+        DENIS GODSON BUSINESS HUB
+    </title>
 
-    <link rel="stylesheet"
-          href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css">
 
 </head>
 
+
 <body>
+
 
 <!-- =====================================================
      BACKGROUND
@@ -44,13 +52,14 @@
 
 <header class="navbar">
 
-    <a href="#home" class="logo">
+    <a
+        href="#home"
+        class="logo">
 
         <img
             src="logo.png"
             alt="DENIS GODSON BUSINESS HUB Logo"
-            class="logo-image"
-        >
+            class="logo-image">
 
         <div class="logo-text">
 
@@ -89,6 +98,7 @@
 
 
     <button
+        type="button"
         class="nav-button ai-button">
 
         Ask AI
@@ -114,6 +124,7 @@
     class="hero">
 
     <div class="hero-content">
+
 
         <div class="hero-badge">
 
@@ -153,6 +164,7 @@
         <div class="hero-buttons">
 
             <button
+                type="button"
                 class="primary-button ai-button">
 
                 Ask the AI Assistant
@@ -214,7 +226,7 @@
                 </div>
 
                 <span>
-                    V5
+                    V5.1
                 </span>
 
             </div>
@@ -253,7 +265,8 @@
 
             <div class="ai-preview">
 
-                <div class="preview-message user-preview">
+                <div
+                    class="preview-message user-preview">
 
                     <span>
                         You
@@ -266,7 +279,8 @@
                 </div>
 
 
-                <div class="preview-message ai-preview-message">
+                <div
+                    class="preview-message ai-preview-message">
 
                     <span>
                         DG AI
@@ -312,6 +326,7 @@
     id="ai"
     class="ai-section">
 
+
     <div class="section-heading">
 
         <div class="section-label">
@@ -347,6 +362,7 @@
 
     <div class="ai-container">
 
+
         <!-- AI HEADER -->
 
         <div class="ai-header">
@@ -357,8 +373,7 @@
 
                     <img
                         src="logo.png"
-                        alt="DG AI"
-                    >
+                        alt="DG AI">
 
                 </div>
 
@@ -395,6 +410,7 @@
             id="chatMessages"
             class="chat-messages">
 
+
             <div class="welcome-message">
 
                 <div class="welcome-icon">
@@ -417,7 +433,9 @@
 
                 <div class="suggestion-list">
 
+
                     <button
+                        type="button"
                         data-question="Give me 5 business ideas for a student">
 
                         💡 Business ideas
@@ -426,6 +444,7 @@
 
 
                     <button
+                        type="button"
                         data-question="Explain entrepreneurship in simple terms">
 
                         📚 Learn entrepreneurship
@@ -434,6 +453,7 @@
 
 
                     <button
+                        type="button"
                         data-question="How can I start a small business?">
 
                         🚀 Start a business
@@ -442,6 +462,7 @@
 
 
                     <button
+                        type="button"
                         data-question="Help me create a business plan">
 
                         📝 Business plan
@@ -462,7 +483,9 @@
             class="typing-indicator">
 
             <span></span>
+
             <span></span>
+
             <span></span>
 
             <label>
@@ -471,22 +494,27 @@
 
         </div>
 
-<!-- CHAT CONTROLS -->
-<div class="chat-controls">
 
-    <button
-        type="button"
-        class="clear-chat-button"
-        onclick="clearChat()">
-        🗑️ Clear Chat
-    </button>
+        <!-- CHAT CONTROLS -->
 
-</div>
+        <div class="chat-controls">
+
+            <button
+                type="button"
+                class="clear-chat-button"
+                onclick="clearChat()">
+
+                🗑️ Clear Chat
+
+            </button>
+
+        </div>
 
 
         <!-- CHAT INPUT -->
 
         <div class="chat-input-area">
+
 
             <textarea
                 id="chatInput"
@@ -495,16 +523,18 @@
                 maxlength="4000"></textarea>
 
 
-<button
-    type="button"
-    id="sendButton"
-    class="send-button"
-    onclick="sendMessage()"
-    aria-label="Send message">
+            <!-- FIXED SEND BUTTON -->
 
-    ➤
+            <button
+                type="button"
+                id="sendButton"
+                class="send-button"
+                onclick="sendMessage()"
+                aria-label="Send message">
 
-</button>
+                ➤
+
+            </button>
 
         </div>
 
@@ -528,6 +558,7 @@
 <section
     id="tools"
     class="features-section">
+
 
     <div class="section-heading">
 
@@ -593,6 +624,7 @@
 
 
             <button
+                type="button"
                 class="tool-button ai-button">
 
                 Try it →
@@ -630,6 +662,7 @@
 
 
             <button
+                type="button"
                 class="tool-button"
                 data-tool="calculator">
 
@@ -668,6 +701,7 @@
 
 
             <button
+                type="button"
                 class="tool-button ai-button">
 
                 Build Plan →
@@ -705,6 +739,7 @@
 
 
             <button
+                type="button"
                 class="tool-button ai-button">
 
                 Start Learning →
@@ -712,6 +747,7 @@
             </button>
 
         </article>
+
 
     </div>
 
@@ -726,7 +762,9 @@
     id="calculator"
     class="calculator-section">
 
+
     <div class="calculator-card">
+
 
         <div class="section-label">
 
@@ -759,6 +797,7 @@
                     Revenue
                 </label>
 
+
                 <input
                     type="number"
                     id="revenue"
@@ -775,6 +814,7 @@
                     Expenses
                 </label>
 
+
                 <input
                     type="number"
                     id="expenses"
@@ -784,12 +824,17 @@
 
             </div>
 
+
         </div>
 
 
+        <!-- FIXED CALCULATOR BUTTON -->
+
         <button
+            type="button"
             id="calculateProfit"
-            class="primary-button">
+            class="primary-button"
+            onclick="calculateProfit()">
 
             Calculate Profit
 
@@ -808,6 +853,7 @@
 
         </div>
 
+
     </div>
 
 </section>
@@ -821,7 +867,9 @@
     id="about"
     class="about-section">
 
+
     <div class="about-content">
+
 
         <div class="section-label">
 
@@ -845,7 +893,7 @@
 
         <p>
 
-            DENIS GODSON BUSINESS HUB is designed
+            DENIS GODSON BUSINESS HUB is designed by Denis Godson
             to make entrepreneurship, business and
             technology easier to understand.
 
@@ -863,6 +911,7 @@
 
 
         <button
+            type="button"
             class="outline-button ai-button">
 
             Talk to DG AI
@@ -872,6 +921,7 @@
             </span>
 
         </button>
+
 
     </div>
 
@@ -928,10 +978,12 @@
 
 <section class="cta-section">
 
+
     <div class="cta-glow"></div>
 
 
     <div class="cta-content">
+
 
         <div class="section-label">
 
@@ -964,6 +1016,7 @@
 
 
     <button
+        type="button"
         class="primary-button cta-button ai-button">
 
         Ask AI
@@ -973,6 +1026,7 @@
         </span>
 
     </button>
+
 
 </section>
 
@@ -986,14 +1040,16 @@
 
 <footer>
 
+
     <div class="footer-brand">
+
 
         <div class="footer-logo">
 
             <img
                 src="logo.png"
-                alt="DG Logo"
-            >
+                alt="DG Logo">
+
 
             <strong>
                 DENIS GODSON BUSINESS HUB
@@ -1012,14 +1068,17 @@
     <div class="footer-right">
 
         <span>
-            Built for the next generation.
+            Built for the next generation • 
+            Denis Godson (CEO)
         </span>
+
 
         <p>
             © 2026 DENIS GODSON BUSINESS HUB
         </p>
 
     </div>
+
 
 </footer>
 
@@ -1032,10 +1091,12 @@
     id="aiModal"
     class="ai-modal">
 
+
     <div class="ai-modal-content">
 
 
         <button
+            type="button"
             id="closeAi"
             class="close-ai"
             aria-label="Close AI">
@@ -1049,8 +1110,7 @@
 
             <img
                 src="logo.png"
-                alt="DG AI"
-            >
+                alt="DG AI">
 
         </div>
 
@@ -1066,6 +1126,7 @@
 
 
         <button
+            type="button"
             class="primary-button"
             onclick="
                 document.getElementById('aiModal').classList.remove('active');
@@ -1098,4 +1159,5 @@
 
 
 </body>
+
 </html>
