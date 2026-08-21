@@ -131,43 +131,92 @@ function escapeHTML(text) {
 
 function formatAIText(text) {
 
-    let safe =
-        escapeHTML(text);
+    let safe = escapeHTML(text);
+
+    /*
+       CODE BLOCKS
+       ```code```
+    */
+
+    safe = safe.replace(
+        /```([\s\S]*?)```/g,
+        '<pre class="ai-code-block"><code>$1</code></pre>'
+    );
 
 
     /*
-       Bold text
-       **example**
+       INLINE CODE
+       `code`
     */
 
-    safe =
-        safe.replace(
-            /\*\*(.*?)\*\*/g,
-            "<strong>$1</strong>"
-        );
+    safe = safe.replace(
+        /`([^`]+)`/g,
+        '<code class="ai-inline-code">$1</code>'
+    );
 
 
     /*
-       Inline code
-       `example`
+       BOLD
+       **text**
     */
 
-    safe =
-        safe.replace(
-            /`([^`]+)`/g,
-            "<code>$1</code>"
-        );
+    safe = safe.replace(
+        /\*\*(.*?)\*\*/g,
+        '<strong>$1</strong>'
+    );
 
 
     /*
-       New lines
+       HEADINGS
+       # Heading
     */
 
-    safe =
-        safe.replace(
-            /\n/g,
-            "<br>"
-        );
+    safe = safe.replace(
+        /^### (.*?)$/gm,
+        '<h4 class="ai-heading">$1</h4>'
+    );
+
+    safe = safe.replace(
+        /^## (.*?)$/gm,
+        '<h3 class="ai-heading">$1</h3>'
+    );
+
+    safe = safe.replace(
+        /^# (.*?)$/gm,
+        '<h2 class="ai-heading">$1</h2>'
+    );
+
+
+    /*
+       NUMBERED LISTS
+    */
+
+    safe = safe.replace(
+        /^(\d+)\.\s+(.*?)$/gm,
+        '<div class="ai-list-item"><span class="ai-number">$1.</span><span>$2</span></div>'
+    );
+
+
+    /*
+       BULLET LISTS
+    */
+
+    safe = safe.replace(
+        /^[•*-]\s+(.*?)$/gm,
+        '<div class="ai-list-item"><span class="ai-bullet">•</span><span>$1</span></div>'
+    );
+
+
+    /*
+       NEW LINES
+
+       Only convert remaining newlines.
+    */
+
+    safe = safe.replace(
+        /\n/g,
+        '<br>'
+    );
 
 
     return safe;
