@@ -1,6 +1,6 @@
 /* =========================================================
    DENIS GODSON BUSINESS HUB
-   VERSION 5.1
+   VERSION 5.2
    AI CHAT + CALCULATOR + CHAT HISTORY
 ========================================================= */
 
@@ -131,17 +131,20 @@ function escapeHTML(text) {
 
 function formatAIText(text) {
 
-    let safe = escapeHTML(text);
+    let safe =
+        escapeHTML(text);
+
 
     /*
        CODE BLOCKS
        ```code```
     */
 
-    safe = safe.replace(
-        /```([\s\S]*?)```/g,
-        '<pre class="ai-code-block"><code>$1</code></pre>'
-    );
+    safe =
+        safe.replace(
+            /```([\s\S]*?)```/g,
+            '<pre class="ai-code-block"><code>$1</code></pre>'
+        );
 
 
     /*
@@ -149,10 +152,11 @@ function formatAIText(text) {
        `code`
     */
 
-    safe = safe.replace(
-        /`([^`]+)`/g,
-        '<code class="ai-inline-code">$1</code>'
-    );
+    safe =
+        safe.replace(
+            /`([^`]+)`/g,
+            '<code class="ai-inline-code">$1</code>'
+        );
 
 
     /*
@@ -160,63 +164,69 @@ function formatAIText(text) {
        **text**
     */
 
-    safe = safe.replace(
-        /\*\*(.*?)\*\*/g,
-        '<strong>$1</strong>'
-    );
+    safe =
+        safe.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
 
 
     /*
        HEADINGS
-       # Heading
     */
 
-    safe = safe.replace(
-        /^### (.*?)$/gm,
-        '<h4 class="ai-heading">$1</h4>'
-    );
+    safe =
+        safe.replace(
+            /^### (.*?)$/gm,
+            '<h4 class="ai-heading">$1</h4>'
+        );
 
-    safe = safe.replace(
-        /^## (.*?)$/gm,
-        '<h3 class="ai-heading">$1</h3>'
-    );
 
-    safe = safe.replace(
-        /^# (.*?)$/gm,
-        '<h2 class="ai-heading">$1</h2>'
-    );
+    safe =
+        safe.replace(
+            /^## (.*?)$/gm,
+            '<h3 class="ai-heading">$1</h3>'
+        );
+
+
+    safe =
+        safe.replace(
+            /^# (.*?)$/gm,
+            '<h2 class="ai-heading">$1</h2>'
+        );
 
 
     /*
        NUMBERED LISTS
     */
 
-    safe = safe.replace(
-        /^(\d+)\.\s+(.*?)$/gm,
-        '<div class="ai-list-item"><span class="ai-number">$1.</span><span>$2</span></div>'
-    );
+    safe =
+        safe.replace(
+            /^(\d+)\.\s+(.*?)$/gm,
+            '<div class="ai-list-item"><span class="ai-number">$1.</span><span>$2</span></div>'
+        );
 
 
     /*
        BULLET LISTS
     */
 
-    safe = safe.replace(
-        /^[•*-]\s+(.*?)$/gm,
-        '<div class="ai-list-item"><span class="ai-bullet">•</span><span>$1</span></div>'
-    );
+    safe =
+        safe.replace(
+            /^[•*-]\s+(.*?)$/gm,
+            '<div class="ai-list-item"><span class="ai-bullet">•</span><span>$1</span></div>'
+        );
 
 
     /*
-       NEW LINES
-
-       Only convert remaining newlines.
+       Remaining new lines
     */
 
-    safe = safe.replace(
-        /\n/g,
-        '<br>'
-    );
+    safe =
+        safe.replace(
+            /\n/g,
+            "<br>"
+        );
 
 
     return safe;
@@ -317,10 +327,6 @@ function clearChat() {
         CHAT_STORAGE_KEY
     );
 
-
-    /*
-       Add a fresh welcome message.
-    */
 
     addAIMessage(
         "Hello! 👋 I'm DG AI. How can I help you today?"
@@ -498,7 +504,7 @@ function addAIMessage(message) {
 
 
 /* =========================================================
-   ADD COPY BUTTONS TO SAVED MESSAGES
+   COPY BUTTONS FOR SAVED MESSAGES
 ========================================================= */
 
 function addCopyButtonsToExistingMessages() {
@@ -527,7 +533,9 @@ function addCopyButtonsToExistingMessages() {
 
 
             const textElement =
-                messageBox.querySelector("p");
+                messageBox.querySelector(
+                    "p"
+                );
 
 
             if (!textElement) {
@@ -577,6 +585,7 @@ function addCopyButtonsToExistingMessages() {
                     } catch (error) {
 
                         console.error(
+                            "Copy failed:",
                             error
                         );
 
@@ -716,9 +725,15 @@ async function sendMessage() {
         );
 
 
+        /*
+           IMPORTANT:
+           Your server.js uses POST /ask
+           and expects { question: message }
+        */
+
         const response =
             await fetch(
-                "/api/chat",
+                "/ask",
                 {
                     method: "POST",
 
@@ -728,7 +743,7 @@ async function sendMessage() {
                     },
 
                     body: JSON.stringify({
-                        message:
+                        question:
                             message
                     })
 
@@ -757,6 +772,10 @@ async function sendMessage() {
         hideTyping();
 
 
+        /*
+           Server error
+        */
+
         if (!response.ok) {
 
             const errorMessage =
@@ -775,8 +794,13 @@ async function sendMessage() {
         }
 
 
+        /*
+           Your server returns:
+           { answer: "..." }
+        */
+
         const reply =
-            data?.reply;
+            data?.answer;
 
 
         if (
@@ -836,6 +860,20 @@ async function sendMessage() {
         }
 
     }
+
+}
+
+
+/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+if (sendButton) {
+
+    sendButton.addEventListener(
+        "click",
+        sendMessage
+    );
 
 }
 
@@ -1178,7 +1216,7 @@ window.addEventListener(
         );
 
         console.log(
-            "🚀 DENIS GODSON BUSINESS HUB V5.1"
+            "🚀 DENIS GODSON BUSINESS HUB V5.2"
         );
 
         console.log(
